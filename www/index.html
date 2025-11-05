@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <title>Hola Apache</title>
+</head>
+<body>
+  <h1>¡Funciona! Apache sirviendo index.html</h1>
+
+  <section>
+    <p>Este ejemplo ahora consulta PostgreSQL mediante un script CGI.</p>
+  </section>
+
+  <section>
+    <h2>Mensajes guardados en PostgreSQL</h2>
+    <div id="db-data">Cargando mensajes...</div>
+  </section>
+
+  <script>
+    async function cargarMensajes() {
+      const contenedor = document.getElementById('db-data');
+      try {
+        const respuesta = await fetch('/cgi-bin/db-mensajes.sh', { cache: 'no-store' });
+        if (!respuesta.ok) {
+          throw new Error('Estado ' + respuesta.status);
+        }
+        const html = await respuesta.text();
+        contenedor.innerHTML = html;
+      } catch (err) {
+        contenedor.textContent = 'No se pudieron cargar los mensajes: ' + err.message;
+      }
+    }
+
+    cargarMensajes();
+  </script>
+</body>
+</html>
