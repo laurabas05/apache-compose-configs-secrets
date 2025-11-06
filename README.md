@@ -1,11 +1,26 @@
 # Práctica: Docker Compose
 
-Arrancas con un `docker compose` que solo levanta el servicio web de Apache. Tu objetivo es completar la configuración para integrar una base de datos PostgreSQL que trabaje junto al sitio web.
+## ¿Qué hemos hecho en esta tarea?
 
-## Tarea: Añade el servicio `db`
+En esta tarea hemos modificado el archivo de configuración `compose.yml` integrándole una base de datos. 
 
-Modifica `compose.yml` e incorpora un servicio `db` basado en la imagen oficial `postgres:16`. Asegúrate de:
+Para ello, la he incorporado como servicio, para que use una imagen oficial de PostgreSQL y con las variables de entorno que crea una base de datos (`ejemplo`), un usuario (`usuario`), y el archivo secreto desde el que se leerá la contraseña.
 
-- Declarar las variables necesarias en la sección `environment` (nombre de la base de datos, usuario y ruta al fichero de contraseña de la bd que inyectarás como secreto).
-- Montar la carpeta `./db-init` dentro del contenedor en el directorio de inicialización (`/docker-entrypoint-initdb.d`, en modo solo lectura) para que se ejecuten automáticamente los scripts SQL suministrados la primera vez que arranque el contenedor.
-- Conectar el servicio a un secreto con la contraseña de la base de datos a través de la sección `secrets`.
+También se ha montado una carpeta local dentro del contenedor en modo solo lectura, con tal de que el contenedor no modifique los archivos locales.
+
+En cuanto al secreto, hemos declarado `pg_pass`, que contiene la contraseña que se montará en la ruta que pusimos anteriormente.
+
+En resumen, este es mi código:
+
+```
+  db:
+    image: postgres:16
+    environment:
+      POSTGRES_DB: ejemplo
+      POSTGRES_USER: usuario
+      POSTGRES_PASSWORD_FILE: /run/secrets/pg_pass
+    volumes:
+      - ./db-init:/docker-entrypoint-initdb.d:ro
+    secrets:
+      - pg_pass
+```
